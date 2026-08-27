@@ -30,7 +30,19 @@ generic class, so this is perhaps not the most important part of PyGEL.
 PyGEL is based on the C++ GEL library and provides a Python interface for most but not
 all of the functionality of GEL. 
 """
-__version__ = "0.7.3"
+def _read_version():
+    from pathlib import Path
+    for parent in list(Path(__file__).resolve().parents)[:6]:
+        vf = parent / "VERSION"
+        if vf.is_file():
+            return vf.read_text(encoding="utf-8").strip()
+    try:
+        from importlib.metadata import version as _pkg_version
+        return _pkg_version("PyGEL3D")
+    except Exception:
+        return "0.0.0"
+
+__version__ = _read_version()
 
 __all__ = ["hmesh", "graph", "gl_display", "jupyter_display", "spatial", "experimental"]
 
@@ -50,8 +62,30 @@ def _get_lib_name():
         return "PyGEL.dll"
     return "libPyGEL.so"
 
+def _load_library():
+    name = _get_lib_name()
+    path = os.path.join(_get_script_path(), name)
+    if not os.path.isfile(path):
+        raise ImportError(
+            f"pygel3d: native library {name} not found at {path}. "
+            "Reinstall from PyPI (`pip install --force-reinstall PyGEL3D`) "
+            "or build from source."
+        )
+    try:
+        return ct.cdll.LoadLibrary(path)
+    except OSError as exc:
+        hint = ""
+        if platform.startswith("linux"):
+            hint = (
+                " On Linux the library needs system OpenGL "
+                "(e.g. `sudo apt-get install libgl1`)."
+            )
+        raise ImportError(
+            f"pygel3d: failed to load {path}: {exc}.{hint}"
+        ) from exc
+
 # Load PyGEL the Python GEL bridge library
-lib_py_gel = ct.cdll.LoadLibrary(_get_script_path() + "/" + _get_lib_name())
+lib_py_gel = _load_library()
 
 # An InvalidIndex is just a special integer value.
 InvalidIndex = ct.c_size_t.in_dll(lib_py_gel, "InvalidIndex").value

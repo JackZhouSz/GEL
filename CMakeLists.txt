@@ -3,7 +3,9 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING
         "Minimum macOS version" FORCE)
 endif()
-project(GEL VERSION 0.7.3 LANGUAGES C CXX)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" GEL_VERSION)
+string(STRIP "${GEL_VERSION}" GEL_VERSION)
+project(GEL VERSION ${GEL_VERSION} LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -31,6 +33,12 @@ endif ()
 
 option(Use_GLGraphics "Compile the OpenGL Viewer" ON)
 if (Use_GLGraphics)
+    if (UNIX AND NOT APPLE)
+        # libGL.so.1 is a manylinux-allowed driver interface. GLVND's
+        # libOpenGL.so / libGLdispatch.so are not portable in a wheel.
+        set(OpenGL_GL_PREFERENCE "LEGACY" CACHE STRING
+            "Prefer libGL.so.1 over GLVND libOpenGL" FORCE)
+    endif ()
     find_package(OpenGL REQUIRED)
     include(FetchContent)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -120,6 +128,18 @@ else ()
     add_library(PyGEL SHARED ${PYG_SRC_LIST})
     target_include_directories(PyGEL PRIVATE ./src)
     target_link_libraries(PyGEL PRIVATE GEL)
+endif ()
+
+if (APPLE)
+    set_target_properties(PyGEL PROPERTIES
+        BUILD_RPATH "@loader_path"
+        INSTALL_RPATH "@loader_path"
+        BUILD_WITH_INSTALL_RPATH TRUE)
+elseif (UNIX)
+    set_target_properties(PyGEL PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE)
 endif ()
 
 # TODO: this one needs to be specifically modified so we do not install it globally, but rather

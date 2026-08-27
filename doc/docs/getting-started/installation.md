@@ -8,24 +8,27 @@ The easiest way to install PyGEL3D is using pip:
 pip install PyGEL3D
 ```
 
-This will install the pre-built binary package for Windows, macOS, or Linux.
+This will install a pre-built wheel for your platform:
+
+- Linux x86_64 and ARM64 (manylinux, glibc 2.28 or newer)
+- macOS 11+ (universal2: Intel and Apple Silicon)
+- 64-bit Windows
 
 ### OpenGL runtime (required)
 
-PyGEL3D's compiled library links against OpenGL (`libGL`) and the OpenGL Utility
-library (`libGLU`). Pip does not install these system libraries. A typical
-desktop already has them; a minimal Linux install (container, CI, server, Colab)
-usually does not, and `import pygel3d` will fail until they are present.
+PyGEL3D's compiled library links against OpenGL (`libGL`). Pip does not install
+this system library. A typical desktop already has it; a minimal Linux install
+(container, CI, server, Colab) usually does not, and `import pygel3d` will fail
+until it is present. GLU is bundled in the Linux wheel.
 
 #### Ubuntu/Debian Linux
 
 ```bash
-sudo apt-get install libgl1 libglu1
+sudo apt-get install libgl1
 ```
 
-`libgl1` and `libglu1` are virtual packages for the OpenGL and GLU runtimes.
-Apt will install whatever implementation the distribution provides. On Ubuntu
-that is typically the Mesa packages (`libglu1-mesa` is the same as `libglu1`).
+`libgl1` is a virtual package for the OpenGL runtime. Apt will install whatever
+implementation the distribution provides. On Ubuntu that is typically Mesa.
 That name refers to the package source, not to software rendering: the GPU
 driver still supplies the OpenGL implementation.
 
@@ -49,7 +52,7 @@ fails to start.
 To use PyGEL3D in Google Colab, add this to your first notebook cell:
 
 ```python
-!apt-get install libgl1 libglu1
+!apt-get install libgl1
 !pip install PyGEL3D
 ```
 
@@ -86,9 +89,12 @@ This installs the C++ library and headers into `~/.local`. Use
 ### Create and Install the Python Package
 
 ```bash
-python -m build -nwx
-pip install dist/PyGEL3D-*.whl
+python -m build --wheel
+pip install dist/pygel3d-*.whl
 ```
+
+This compiles the native library with CMake and produces a wheel tagged for the
+current platform (`py3-none-macosx_*`, `manylinux_*`, or `win_amd64`).
 
 Alternatively, use the provided build script:
 
@@ -97,6 +103,9 @@ sh build_install.sh
 ```
 
 This script builds and installs both GEL and PyGEL.
+
+Official PyPI wheels are built on GitHub Actions for manylinux, macOS, and
+Windows. You do not need to collect binaries from CI.
 
 ## Verify Installation
 
@@ -130,9 +139,9 @@ If you get import errors, ensure that:
 
 ### OpenGL Errors
 
-If `import pygel3d` fails with a missing `libGL` or `libGLU` on Linux, install
-the runtimes (`sudo apt-get install libgl1 libglu1` on Ubuntu/Debian). If the
-viewer fails to open on a desktop machine, update the graphics driver.
+If `import pygel3d` fails with a missing `libGL` on Linux, install the OpenGL
+runtime (`sudo apt-get install libgl1` on Ubuntu/Debian). If the viewer fails
+to open on a desktop machine, update the graphics driver.
 
 ### Building Issues
 

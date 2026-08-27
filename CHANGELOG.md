@@ -1,3 +1,18 @@
+Version 0.8.0
+- PyPI now ships per-platform wheels instead of one `py3-none-any` archive:
+  manylinux_2_28 (x86_64 and aarch64), macOS 11+ universal2, and Windows
+  AMD64. Each wheel contains only the matching native library. pip selects
+  the right one; one binary still covers every Python 3.11+.
+- Linux wheels are built on manylinux (glibc 2.28, AlmaLinux 8), not Ubuntu,
+  so they install on Debian, Fedora, RHEL 8+, Ubuntu 20.04+, Colab, and
+  similar. libGLU and X11 helpers are bundled; system OpenGL (`libGL`) is
+  still required.
+- Wheels and the sdist are built by GitHub Actions (`wheels.yml`) and
+  published on `v*` tags. No more downloading CI artifacts to assemble a
+  wheel locally.
+- `python -m build --wheel` / `pip install .` invoke CMake and produce a
+  platform-tagged wheel. `pygel3d.experimental` is included in the package.
+
 Version 0.7.3
 - macOS library now targets macOS 11.0 (Big Sur) instead of the build
   machine's OS, so Intel and Apple Silicon Macs older than macOS 26 can

@@ -10,6 +10,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-24.04-arm
           - windows-latest
           - macos-latest
         python-version:
@@ -33,7 +34,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libglu1-mesa
+          sudo apt-get install -y libgl1 libglu1
 
       - name: Resolve latest PyPI version
         id: latest

@@ -44,5 +44,11 @@ doc/site/
 _skbuild/
 dist/
 src/PyGEL3D.egg-info/
+*.egg-info/
+
+# Native library copies produced while building the Python package
+src/PyGEL/pygel3d/libPyGEL.so
+src/PyGEL/pygel3d/libPyGEL.dylib
+src/PyGEL/pygel3d/PyGEL.dll
 
 
