@@ -1,3 +1,11 @@
+Version 0.8.2
+- Version 0.8.1 could not be published to PyPI because I forgot to update the
+  the version number. Here we go again.
+
+Version 0.8.1
+- Changed the Jupyter display function to return a simpler object. This works
+  for Marimo notebooks. Moreover, the old solution was outdated.
+
 Version 0.8.0
 - PyPI now ships per-platform wheels instead of one `py3-none-any` archive:
   manylinux_2_28 (x86_64 and aarch64), macOS 11+ universal2, and Windows
